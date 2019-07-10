@@ -16,6 +16,8 @@ def dateToEpoch(dateTimeG, tzStr):
 
 def epochToDate(epoch, tzStr, reprBool=True):
     """takes epoch and changes it to a string date format"""
+    if not epoch:
+        return "never"
     gTzTime = datetime.fromtimestamp(epoch, timezone(tzStr))
     if reprBool:
         return gTzTime.strftime('%Y-%m-%d %H:%M:%S')

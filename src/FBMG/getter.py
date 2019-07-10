@@ -11,7 +11,8 @@ from FBMG.TimeConverter import epochToDate
 # a function (later cached) to find the userNames
 
 outputPath = "../ChatsArchive"
-passPath = "FBMG/email_and_password.txt"
+emailPath = "FBMG/email.txt"
+passPath = "FBMG/password.txt"
 
 
 
@@ -46,8 +47,9 @@ def getAllMessages(name, filename, step, numSpaces=12):
     tz = "US/Pacific"
 
     #  the meat of the program:
-    with open(passPath, "r") as f:
+    with open(emailPath, "r") as f:
         email = f.readline().replace("\n", "")
+    with open(passPath, "r") as f:
         pWord = f.readline().replace("\n", "")
     client = Client(email, pWord)
 
