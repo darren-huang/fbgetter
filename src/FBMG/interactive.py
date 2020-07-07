@@ -4,11 +4,12 @@ import codecs
 import time
 import fbchat
 from fbchat.models import ImageAttachment
-from fbchat import Client
+from fbchat import Client, FBchatException, Group, User
 from os.path import dirname, realpath, exists
 
 from FBMG.TimeConverter import epochToDate
 
+outputPath = "./ChatsArchive"
 emailPath = os.path.join(dirname(realpath(__file__)), "email.txt")
 passPath = os.path.join(dirname(realpath(__file__)), "password.txt")
 
@@ -103,7 +104,13 @@ def determine_chat_thread(client):
 def get_all_msg_strs(client, thread):
     step = 5000
     msgStrings = []
-    numSpaces = max([len(user.name) for user in client.fetchAllUsersFromThreads([thread])])
+
+    # find max length of names in the chat
+    if type(thread) == Group: # group chat
+        numSpaces = max([len(user.name) for user in client.fetchAllUsersFromThreads([thread])])
+    else: #User chat
+        numSpaces = max([len(user.name) for user in [thread, client.fetchUserInfo(client.uid)[client.uid]]])
+
     before = int(round(time.time() * 1000))  # current time in milliseconds
 
     numMsgs = 0
@@ -147,6 +154,7 @@ def get_all_msg_strs(client, thread):
         print(numMsgs)
 
         messages = client.fetchThreadMessages(thread_id=thread.uid, limit=step, before=before)
+            
 
     # adds the final name tag
     msgStrings[-1] = msgStrings[-1].replace(sp + ": ", lastName + ": ")
@@ -164,11 +172,20 @@ def write_msgs(outputPath, filename, msgStrings):
     except FileExistsError as e:
         print("File already exists, please delete " + filename + " in order to continue")
 
+def interactive_write_msgs(msgStrings):
+    filename = input("filename: ")
+    num = 0
+    while os.path.exists(os.path.join(outputPath, (filename + str(num) + ".txt"))):
+        num += 1
+    filename = filename + str(num) + ".txt"
+    write_msgs(outputPath, filename, msgStrings)
+
 def main():
     client = get_client()
     thread = determine_chat_thread(client)
     msgs = get_all_msg_strs(client, thread)
-    print("\n".join(msgs[:15]))
+    # print("\n".join(msgs[:15]))
+    interactive_write_msgs(msgs)
 
 if __name__ == '__main__':
     main()

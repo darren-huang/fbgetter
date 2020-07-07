@@ -1,6 +1,6 @@
 # -*- coding: UTF-8 -*-
 
-from fbchat import Client
+from fbchat import Client, FBchatException
 from fbchat.models import *
 import sys
 import codecs
@@ -93,8 +93,8 @@ def getAllMessages(name, filename, step, numSpaces=12):
 
                 numMsgs += len(messages)
                 print(numMsgs)
-
                 messages = client.fetchThreadMessages(thread_id=user.uid, limit=step, before=before)
+                    
 
             # adds the final name tag
             msgStrings[-1] = msgStrings[-1].replace(sp + ": ", lastName + ": ")
