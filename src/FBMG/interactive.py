@@ -67,7 +67,7 @@ def user_str(user):
 def get_msg_attachment_urls(client, msg):
     try:
         return "\n".join([client.fetchImageUrl(image_attach.uid) for image_attach in msg.attachments])
-    except fbchat._exception.FBchatFacebookError as e:
+    except fbchat.FBchatFacebookError as e:
         print("ERROR: ", e)
         print(msg)
         return ""
@@ -111,7 +111,11 @@ def get_all_msg_strs(client, thread):
     else: #User chat
         numSpaces = max([len(user.name) for user in [thread, client.fetchUserInfo(client.uid)[client.uid]]])
 
-    before = int(round(time.time() * 1000))  # current time in milliseconds
+    before_in = input("before epoch? (leave empty if not):")
+    if before_in == "":
+        before = int(round(time.time() * 1000))  # current time in milliseconds
+    else:
+        before = int(before_in)
 
     numMsgs = 0
     lastName = None
@@ -153,7 +157,13 @@ def get_all_msg_strs(client, thread):
         numMsgs += len(messages)
         print(numMsgs)
 
-        messages = client.fetchThreadMessages(thread_id=thread.uid, limit=step, before=before)
+        try:
+            time.sleep(1)
+            messages = client.fetchThreadMessages(thread_id=thread.uid, limit=step, before=before)
+        except FBchatException:
+            messages = None
+            print("\n\n\n\nFAILED TO GET MESSAGES???\n\nbefore: {}\n\n\n".format(before))
+            msgStrings.append("\n before: {}\n".format(before))
             
 
     # adds the final name tag
